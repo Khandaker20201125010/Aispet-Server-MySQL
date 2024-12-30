@@ -16,20 +16,20 @@ app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x
 
 // MySQL Connection Setup
 const connection = mysql.createConnection({
-  host: process.env.HOST,
-  user: process.env.USER_NAME,
-  password: process.env.USER_PASS,
-  database: process.env.DATABASE,
-  port: process.env.DB_PORT,
+    host: process.env.HOST,
+    user: process.env.USER_NAME,
+    password: process.env.USER_PASS,
+    database: process.env.DATABASE,
+    port: process.env.DB_PORT,
 });
 
 // Connect to MySQL Database
 connection.connect((err) => {
-  if (err) {
-    console.error("Database connection failed: " + err.stack);
-    return;
-  }
-  console.log("Connected to database as ID " + connection.threadId);
+    if (err) {
+        console.error("Database connection failed: " + err.stack);
+        return;
+    }
+    console.log("Connected to database as ID " + connection.threadId);
 });
 
 // Routes
@@ -38,26 +38,17 @@ connection.connect((err) => {
 // Get All Services (GET Request)
 app.get("/services", (req, res) => {
     const query = "SELECT * FROM services";
-  
-    connection.query(query, (err, results) => {
-      if (err) {
-        console.error("Error fetching services:", err);
-        return res.status(500).send({ error: "Database error" });
-      }
-  
-      // Send the services as the response
-      res.status(200).send({ services: results });
-    });
-  });
-  
-app.get("/", (req, res) => {
-  if (connection.state !== "connected") {
-    return res.status(500).send("Database is not connected");
-  }
-  res.send("Hello from the server!");
-});
 
-// Add New Service (POST Request)
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error("Error fetching services:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+
+        // Send the services as the response
+        res.status(200).send({ services: results });
+    });
+});
 app.post("/services", (req, res) => {
     const { name, image, description } = req.body;
 
@@ -76,20 +67,49 @@ app.post("/services", (req, res) => {
         res.status(201).send({ insertedId: result.insertId });  // Return the inserted ID
     });
 });
+app.delete("/services/:id", (req, res) => {
+    const { id } = req.params;
+
+    // SQL query to delete the service
+    const query = "DELETE FROM services WHERE id = ?";
+    connection.query(query, [id], (err, result) => {
+        if (err) {
+            console.error("Error deleting service:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).send({ error: "Service not found" });
+        }
+
+        res.status(200).send({ message: "Service deleted successfully", deletedCount: result.affectedRows });
+    });
+});
+
+
+app.get("/", (req, res) => {
+    if (connection.state !== "connected") {
+        return res.status(500).send("Database is not connected");
+    }
+    res.send("Hello from the server!");
+});
+
+// Add New Service (POST Request)
+
 
 
 // Close Database Connection on App Termination
 process.on("SIGINT", () => {
-  connection.end((err) => {
-    if (err) {
-      console.error("Error during disconnection: " + err.stack);
-    }
-    console.log("Database connection closed");
-    process.exit(0);
-  });
+    connection.end((err) => {
+        if (err) {
+            console.error("Error during disconnection: " + err.stack);
+        }
+        console.log("Database connection closed");
+        process.exit(0);
+    });
 });
 
 // Start Server
 app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+    console.log(`Listening on port ${port}`);
 });
