@@ -50,23 +50,74 @@ app.get("/services", (req, res) => {
     });
 });
 app.post("/services", (req, res) => {
-    const { name, image, description } = req.body;
+    const { name, image, description, category } = req.body;
 
     // Ensure all required fields are present
-    if (!name || !image || !description) {
+    if (!name || !image || !description || !category) {
         return res.status(400).send({ error: "All fields are required" });
     }
 
     // Construct the SQL query to insert the service into the database
-    const query = "INSERT INTO services (name, image, description) VALUES (?, ?, ?)";
-    connection.query(query, [name, image, description], (err, result) => {
+    const query = "INSERT INTO services (name, images, description, category) VALUES (?, ?, ?, ?)";
+    connection.query(query, [name, image, description, category], (err, result) => {
         if (err) {
-            console.error("Error inserting service:", err);
+            console.error("Error inserting service:", err); // Log the error for debugging
             return res.status(500).send({ error: "Database error" });
         }
-        res.status(201).send({ insertedId: result.insertId });  // Return the inserted ID
+        res.status(201).send({ insertedId: result.insertId });
     });
 });
+
+  // Update Service (PATCH Request)
+  app.get("/services/:id", (req, res) => {
+    const serviceId = req.params.id;
+    const query = "SELECT * FROM services WHERE id = ?";
+
+    connection.query(query, [serviceId], (err, results) => {
+        if (err) {
+            console.error("Error fetching service:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send({ message: "Service not found" });
+        }
+        
+        res.status(200).send({ service: results[0] });
+    });
+});
+
+  app.patch("/services/:id", (req, res) => {
+    const { id } = req.params;
+    const { name, image, description, category } = req.body;
+
+    if (!name || !image || !description || !category) {
+        return res.status(400).send({ error: "All fields are required" });
+    }
+
+    const query = `
+        UPDATE services
+        SET name = ?, images = ?, description = ?, category = ?
+        WHERE id = ?
+    `;
+    connection.query(query, [name, image, description, category, id], (err, result) => {
+        if (err) {
+            console.error("Error updating service:", err); // Log the error for debugging
+            return res.status(500).send({ error: "Database error", details: err });
+        }
+
+        console.log("Query Result:", result);  // Log result to check if the update is successful
+        if (result.affectedRows === 0) {
+            return res.status(404).send({ error: "Service not found" });
+        }
+
+        res.status(200).send({ message: "Service updated successfully", updatedCount: result.affectedRows });
+    });
+});
+
+
+
+
 app.delete("/services/:id", (req, res) => {
     const { id } = req.params;
 
