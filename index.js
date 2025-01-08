@@ -36,6 +36,39 @@ connection.connect((err) => {
 
 // Test Route
 // Get All Services (GET Request)
+
+
+//users
+app.get("/users", (req, res) => {
+    const query = "SELECT * FROM users";
+
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error("Error fetching users:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+
+        // Send the services as the response
+        res.status(200).send({ users: results });
+    });
+});
+app.post("/users", (req, res) => {
+    const { email, name, photo } = req.body;
+  
+    if (!email || !name || !photo) {
+      return res.status(400).send({ error: "All fields are required" });
+    }
+  
+    const query = "INSERT INTO users (email, name, photo) VALUES (?, ?, ?)";
+    connection.query(query, [email, name, photo], (err, result) => {
+      if (err) {
+        console.error("Error inserting user:", err);
+        return res.status(500).send({ error: "Database error" });
+      }
+      res.status(201).send({ insertedId: result.insertId });
+    });
+  });
+//services
 app.get("/services", (req, res) => {
     const query = "SELECT * FROM services";
 
@@ -114,9 +147,6 @@ app.post("/services", (req, res) => {
         res.status(200).send({ message: "Service updated successfully", updatedCount: result.affectedRows });
     });
 });
-
-
-
 
 app.delete("/services/:id", (req, res) => {
     const { id } = req.params;
