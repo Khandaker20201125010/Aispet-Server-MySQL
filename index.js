@@ -54,20 +54,20 @@ app.get("/users", (req, res) => {
 });
 app.post("/users", (req, res) => {
     const { email, name, photo } = req.body;
-  
+
     if (!email || !name || !photo) {
-      return res.status(400).send({ error: "All fields are required" });
+        return res.status(400).send({ error: "All fields are required" });
     }
-  
+
     const query = "INSERT INTO users (email, name, photo) VALUES (?, ?, ?)";
     connection.query(query, [email, name, photo], (err, result) => {
-      if (err) {
-        console.error("Error inserting user:", err);
-        return res.status(500).send({ error: "Database error" });
-      }
-      res.status(201).send({ insertedId: result.insertId });
+        if (err) {
+            console.error("Error inserting user:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+        res.status(201).send({ insertedId: result.insertId });
     });
-  });
+});
 //services
 app.get("/services", (req, res) => {
     const query = "SELECT * FROM services";
@@ -82,6 +82,39 @@ app.get("/services", (req, res) => {
         res.status(200).send({ services: results });
     });
 });
+app.get("/services/related/:id", (req, res) => {
+    const serviceId = req.params.id;
+    const query = `
+        SELECT * FROM services 
+        WHERE category IN (SELECT category FROM services WHERE id = ?)
+        AND id != ?`; // Exclude current service
+
+    connection.query(query, [serviceId, serviceId], (err, results) => {
+        if (err) {
+            console.error("Error fetching related services:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+        res.status(200).send({ relatedServices: results });
+    });
+});
+app.get("/services/:id", (req, res) => {
+    const serviceId = req.params.id;
+    const query = "SELECT * FROM services WHERE id = ?";
+
+    connection.query(query, [serviceId], (err, results) => {
+        if (err) {
+            console.error("Error fetching service:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send({ message: "Service not found" });
+        }
+
+        res.status(200).send({ service: results[0] });
+    });
+});
+
 app.post("/services", (req, res) => {
     const { name, image, description, category } = req.body;
 
@@ -101,8 +134,8 @@ app.post("/services", (req, res) => {
     });
 });
 
-  // Update Service (PATCH Request)
-  app.get("/services/:id", (req, res) => {
+// Update Service (PATCH Request)
+app.get("/services/:id", (req, res) => {
     const serviceId = req.params.id;
     const query = "SELECT * FROM services WHERE id = ?";
 
@@ -115,12 +148,12 @@ app.post("/services", (req, res) => {
         if (results.length === 0) {
             return res.status(404).send({ message: "Service not found" });
         }
-        
+
         res.status(200).send({ service: results[0] });
     });
 });
 
-  app.patch("/services/:id", (req, res) => {
+app.patch("/services/:id", (req, res) => {
     const { id } = req.params;
     const { name, image, description, category } = req.body;
 
