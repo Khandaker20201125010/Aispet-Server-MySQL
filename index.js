@@ -233,7 +233,35 @@ app.post("/bookServices", (req, res) => {
     });
 });
 
+app.delete("/bookServices/:id", (req, res) => {
+    const { id } = req.params;
+    const query = "DELETE FROM bookservices WHERE id = ?";
+    connection.query(query, [id], (err, result) => {
+        if (err) {
+            console.error("Error deleting booking:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+        res.status(200).send({ message: "Booking cancelled successfully" });
+    });
+});
 
+app.get("/bookServices", (req, res) => {
+    const { email } = req.query; // Extract email from query parameters
+
+    if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+    }
+
+    const query = "SELECT * FROM bookservices WHERE email = ?";
+    connection.query(query, [email], (err, results) => {
+        if (err) {
+            console.error("Error fetching bookservices:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        res.status(200).json({ bookservices: results });
+    });
+});
 
 
 
