@@ -200,6 +200,45 @@ app.delete("/services/:id", (req, res) => {
     });
 });
 
+//booked services
+app.get("/bookServices", (req, res) => {
+    const query = "SELECT * FROM bookservices";
+
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error("Error fetching bookservices:", err);
+            return res.status(500).send({ error: "Database error" });
+        }
+
+        // Send the services as the response
+        res.status(200).send({ bookservices: results });
+    });
+});
+
+app.post("/bookServices", (req, res) => {
+    const { email, name, images } = req.body;
+
+    if (!email || !name || !images) {
+        console.error("Validation failed:", { email, name, images });
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const query = "INSERT INTO bookservices (email, name, images) VALUES (?, ?, ?)";
+    connection.query(query, [email, name, images], (err, result) => {
+        if (err) {
+            console.error("Database error:", err); // Log the exact error
+            return res.status(500).json({ error: "Database error" });
+        }
+        res.status(201).json({ insertedId: result.insertId });
+    });
+});
+
+
+
+
+
+
+
 
 app.get("/", (req, res) => {
     if (connection.state !== "connected") {
