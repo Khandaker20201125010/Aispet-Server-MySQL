@@ -7,7 +7,7 @@ This project is an Express.js server application integrated with a MySQL databas
 Make sure you have the following installed:
 
 1. **Node.js**: [Download Node.js](https://nodejs.org/)
-2. **MySQL**: [Download MySQL](https://dev.mysql.com/downloads/)
+2. **XAMPP**: [Download XAMPP](https://www.apachefriends.org/) To run MYSQL
 3. **npm**: Comes with Node.js installation.
 4. **Git**: [Download Git](https://git-scm.com/downloads)
 
