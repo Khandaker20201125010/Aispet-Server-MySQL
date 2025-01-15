@@ -199,4 +199,153 @@ app.listen(port, () => {
 
 ## Conclusion
 This project demonstrates a robust Express.js server with MySQL integration. Follow the steps above to set it up and extend it as needed.
+# Guide to Deploying Your Server to Vercel
+
+This guide explains how to make your server live on Vercel. It covers installation, configuration, and deployment steps.
+
+---
+
+## Prerequisites
+1. **Node.js** installed on your system.
+   - Check with:
+     ```bash
+     node -v
+     ```
+   - If not installed, download it from [Node.js Official Website](https://nodejs.org/).
+
+2. **Vercel Account**:
+   - Sign up at [Vercel](https://vercel.com/) if you don't already have an account.
+
+3. **Project Requirements**:
+   - Ensure your server project has a valid `package.json` file.
+   - Your server code should have a proper entry point (e.g., `index.js`).
+
+---
+
+## Step 1: Install Vercel CLI
+1. Open your terminal and install Vercel globally using npm:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. Verify the installation:
+   ```bash
+   vercel --version
+   ```
+
+3. Log in to Vercel:
+   ```bash
+   vercel login
+   ```
+   Follow the prompts to authenticate your account.
+
+---
+
+## Step 2: Prepare Your Project
+1. **Create or Navigate to Your Project**:
+   - Ensure your project folder contains the server code and a valid `package.json` file.
+
+2. **Set Your Start Script**:
+   - In `package.json`, add a start script to define how your server runs:
+     ```json
+     "scripts": {
+       "start": "node index.js"
+     }
+     ```
+3. **Make file name vercel.json 
+   add a start script to define how your server runs:
+    ```{
+    "version": 2,
+    "builds": [
+      {
+        "src": "index.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "index.js",
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+      }
+    ]
+  } 
+```
+4. **Test Your Server Locally**:
+   - Run your server locally to ensure it works as expected:
+     ```bash
+     npm start
+     ```
+
+---
+
+## Step 3: Deploy to Vercel
+1. Navigate to your project directory:
+   ```bash
+   cd /path/to/your/project
+   ```
+
+2. Run the deployment command:
+   ```bash
+   vercel
+   ```
+
+3. Follow the prompts:
+   - **Project name**: Enter your project name or press Enter to use the folder name.
+   - **Link to existing project**: If you’ve deployed this project before, link it. Otherwise, select "No."
+   - **Detected framework**: Vercel will detect your project type (Node.js). Confirm the selection.
+   - **Override settings**: Choose "No" unless you need custom configurations.
+
+4. Once deployed, Vercel will provide a URL where your server is live. Example:
+   ```
+   https://your-project-name.vercel.app
+   ```
+
+---
+
+## Step 4: Environment Variables (Optional)
+1. If your project requires environment variables:
+   - Go to the [Vercel Dashboard](https://vercel.com/dashboard).
+   - Select your project.
+   - Navigate to **Settings > Environment Variables**.
+   - Add your variables (e.g., `DATABASE_URL`, `API_KEY`).
+
+2. Redeploy your project to apply the changes:
+   ```bash
+   vercel --prod
+   ```
+
+---
+
+## Step 5: Test Your Live Server
+1. Visit the provided URL to test your server.
+2. Use tools like Postman or your frontend app to ensure the endpoints are working correctly.
+
+---
+
+## Step 6: Update and Redeploy
+1. Make changes to your server code as needed.
+2. Deploy updates:
+   ```bash
+   vercel --prod
+   ```
+
+---
+
+## Troubleshooting
+- **Server Not Working**:
+  - Check logs in the Vercel Dashboard under **Functions**.
+  - Ensure all environment variables are correctly set.
+
+- **Port Binding Error**:
+  - Vercel dynamically assigns a port. Use:
+    ```javascript
+    const port = process.env.PORT || 3000;
+    ```
+
+---
+
+Your server is now live and ready to use on Vercel!
+
+
 
