@@ -22,7 +22,6 @@ const connection = mysql.createConnection({
     database: process.env.MYSQL_ADDON_DB,   //  Correct
     port: process.env.MYSQL_ADDON_PORT,   //  Correct
     waitForConnections: true,
-    connectionLimit: 10,  // Limits connections
     queueLimit: 0
 });
 
