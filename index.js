@@ -16,11 +16,14 @@ app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x
 
 // MySQL Connection Setup
 const connection = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER_NAME,
-    password: process.env.USER_PASS,
-    database: process.env.DATABASE,
-    port: process.env.DB_PORT,
+    host: process.env.MYSQL_ADDON_HOST,   //  Correct
+    user: process.env.MYSQL_ADDON_USER,   //  Correct
+    password: process.env.MYSQL_ADDON_PASSWORD,  //  Correct
+    database: process.env.MYSQL_ADDON_DB,   //  Correct
+    port: process.env.MYSQL_ADDON_PORT,   //  Correct
+    waitForConnections: true,
+    connectionLimit: 10,  // Limits connections
+    queueLimit: 0
 });
 
 // Connect to MySQL Database
@@ -268,13 +271,9 @@ app.get("/bookServices", (req, res) => {
 
 
 
-app.get("/", (req, res) => {
-    if (connection.state !== "connected") {
-        return res.status(500).send("Database is not connected");
-    }
-    res.send("Hello from the server!");
-});
-
+app.get('/', (req, res) => {
+    res.send('service is connected')
+  })
 // Add New Service (POST Request)
 
 
